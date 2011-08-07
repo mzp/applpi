@@ -1,0 +1,325 @@
+Add LoadPath "/home/affeldt/src/coq/applpi".
+
+Require Import libapplpi.
+
+(** model of the server and the client *)
+
+Definition server (i : chan (nat*(chan nat true)) true) :=
+ i ??* (fun ar =>
+ let a := fst ar in 
+ let r := snd ar in 
+  (OutAtom r (plus a (1)))).
+
+Definition client (i : chan (nat*(chan nat true)) true) (o : chan nat false) :=
+  nuPl (fun r => parP (OutAtom i (O,r)) (r ?? (fun x => OutAtom o x))).
+
+Recursive Extraction server client.
+
+(** one property *)
+
+Definition does_succ (i:chan (nat*(chan nat true)) true) (o:chan nat false) : proc-> Prop :=
+  fun (P:proc) => (((i&(o&nilC))#P) |=t (FMUSTEV (STAT (OUTPUTS o 1%nat ISANY)))).
+
+Axiom nat_isnot_chan : forall (A:Set) (b:bool), ~ nat = chan A b.
+Axiom unit_isnot_chan : forall (A:Set) (b:bool), ~unit = chan A b.
+Axiom nat_isnot_pair : forall (A B:Set), ~ nat = prod A B.
+
+(** the client receives the expected response *)
+Theorem verify_server : forall
+  (i : chan (nat*(chan nat true)) true) (o : chan nat false),
+ ChanList_is_set (i&(o&nilC)) -> 
+ does_succ i o (parP (server i) (client i o)).
+intros.
+red.
+
+assert (free_vars (o&nilC) (OUTPUTS o 1%nat ISANY)).
+red; split; intros.
+red in H0.
+simpl.
+apply NNPP.
+swap H0.
+apply OUTPUTS_notin.
+firstorder.
+intro.
+generalize (jmeq_types H0); intros.
+generalize (nat_isnot_chan B b'); intro; tauto.
+apply ISANY_notin.
+simpl in H0.
+inversion_clear H0; try tauto.
+red.
+intro.
+generalize (inv_OUTPUTS_notin H0); intro.
+firstorder.
+
+unfold client.
+ChooseFreshL nat.
+intros r rfresh.
+
+assert (ChanList_is_set (r&(i&(o&nilC)))).
+apply chanlist_is_set_extend.
+auto.
+auto.
+
+ConfRedNewL r.
+apply free_vars_tfree_vars.
+apply H0.
+firstorder.
+unfold server.
+unfold OutAtom.
+repeat constructor.
+apply inter_weak.
+apply inter_nilC.
+firstorder.
+
+unfold server.
+apply cong_resp_tsat with (parP (inP r (fun x:nat => (OutAtom o x)))
+                    (parP (rinP i
+                      (fun ar:(nat*(chan nat true))=>
+                       (OutAtom (snd ar) (plus (fst ar) (1)))))
+		     (OutAtom i ((0),r))
+                      )).
+unfold OutAtom.
+apply red_com_deter_rinout.
+
+intro.
+generalize (INPUTS_sat_inv H2); intros.
+inversion_clear H3.
+inversion_clear H4.
+inversion_clear H3.
+generalize (Cong_inP_parP_inP0 H4 (O,r)); intro.
+generalize (nat_isnot_pair nat (chan nat true)); intro.
+auto.
+
+intro.
+inversion_clear H2.
+generalize (OUTPUTS_sat_inv H3); intros.
+inversion_clear H2.
+inversion_clear H4.
+inversion_clear H2.
+apply (Cong_inP_parP_outP H4).
+CheckStable.
+firstorder.
+auto.
+CheckInc.
+
+simpl.
+apply cong_resp_tsat with (parP (rinP i
+                          (fun ar:(nat*(chan nat true)) =>
+                           (outP (snd ar) (plus (fst ar) (1)) zeroP)))
+                    (parP
+                      (inP r (fun x:nat => (outP o x zeroP)))
+                        (outP r (1) zeroP))).
+unfold OutAtom.
+apply red_com_deter_inout.
+
+intro.
+generalize (INPUTS_sat_inv H2); intros.
+inversion_clear H3.
+inversion_clear H4.
+inversion_clear H3.
+generalize (Cong_rinP_parP_inP0 H4 O); intro.
+generalize (nat_isnot_pair nat (chan nat true)); intro.
+auto.
+
+intro.
+inversion_clear H2.
+generalize (OUTPUTS_sat_inv H3); intros.
+inversion_clear H2.
+inversion_clear H4.
+inversion_clear H2.
+apply (Cong_rinP_parP_outP H4).
+
+CheckStable.
+generalize H; CheckListSet.
+auto.
+CheckInc.
+
+apply now_is_FMUSTEV.
+apply STAT_sat.
+SolveOUTPUTS.
+auto.
+ProcCong.
+ProcCong.
+Qed.
+
+(** model for failures *)
+
+Axiom system_failure : (chan unit false).
+
+Definition may_fail := nuP (fun x => (parP
+   (InAtom x)
+   (parP
+     (OutAtom x tt)
+     (x ?? (fun _ => (OutAtom system_failure tt)))))).
+
+Definition does_succ2 (i:(chan (nat*(chan nat true)) true)) (o:(chan nat false)) : proc-> Prop :=
+  fun P:proc =>
+  (tsat (FMUSTEV (STAT (OR (OUTPUTS o (1) ISANY) (OUTPUTS system_failure tt ISANY)))) 
+      ((i&(o&(system_failure&nilC)))#P)).
+
+(** the client receives the expected response or the system fails *)
+Theorem verify_server2 : 
+ forall (i:(chan (nat*(chan nat true)) true)) (o:(chan nat false)),
+ ChanList_is_set (i&(o&(system_failure&nilC))) -> 
+ does_succ2 i o (parP (parP (server i) (client i o)) may_fail).
+intros.
+red.
+unfold may_fail.
+
+assert (free_vars (o&(system_failure&nilC)) (OR (OUTPUTS o (1) ISANY)
+         (OUTPUTS system_failure tt ISANY))).
+red; split; intros.
+apply NNPP.
+swap H0.
+apply OR_notin.
+apply OUTPUTS_notin.
+firstorder.
+intro.
+generalize (jmeq_types H0); intros.
+generalize (nat_isnot_chan B b'); intro; tauto.
+apply ISANY_notin.
+apply OUTPUTS_notin.
+firstorder.
+intro.
+generalize (jmeq_types H0); intros.
+generalize (unit_isnot_chan B b'); intro; auto.
+apply ISANY_notin.
+intro.
+inversion_clear H1.
+generalize (inv_OUTPUTS_notin H2); intro.
+generalize (inv_OUTPUTS_notin H3); intro.
+firstorder.
+
+ChooseFresh_set unit failc.
+
+ConfRedNew failc.
+apply chanlist_fresh.
+auto.
+apply free_vars_tfree_vars.
+apply H0.
+firstorder.
+unfold server.
+unfold OutAtom.
+unfold InAtom.
+unfold client.
+repeat constructor.
+simpl.
+apply inter_weak.
+apply inter_weak.
+apply inter_nilC.
+firstorder.
+firstorder.
+
+unfold client.
+ChooseFreshL_set nat r.
+
+ConfRedNewL r.
+apply chanlist_fresh.
+auto.
+apply free_vars_tfree_vars.
+apply H0.
+firstorder.
+unfold server.
+unfold OutAtom.
+unfold InAtom.
+unfold client.
+repeat constructor.
+simpl.
+apply inter_weak.
+apply inter_weak.
+apply inter_nilC.
+firstorder.
+firstorder.
+
+unfold server.
+
+eapply conf_red_com with (c:=i).
+apply red_com.
+decomp (0#r).
+apply free_vars_tfree_vars.
+apply H0.
+firstorder.
+unfold OutAtom.
+unfold InAtom.
+repeat constructor.
+apply inter_weak.
+apply inter_weak.
+apply inter_nilC.
+CheckNotInChanList2 H.
+CheckNotInChanList2 H.
+
+simpl.
+unfold OutAtom.
+unfold InAtom.
+apply red_com_nondeter.
+CheckExistsGuard.
+CheckUnstable.
+intros.
+NextComms.
+simpl.
+intros.
+or_false.
+intro X; rewrite X; clear X.
+apply now_is_FMUSTEV.
+apply STAT_sat.
+SolveOROUTPUTS.
+auto.
+
+intro X; rewrite X; clear X.
+apply cong_resp_tsat with 
+(parP
+    (parP
+      (rinP i
+        (fun ar:(nat*(chan nat true)) =>
+        (outP (snd ar)
+          (plus (fst ar) (1))
+           zeroP)))
+      (inP failc
+        ( fun _:unit =>
+        (outP system_failure tt
+         zeroP))))
+  (parP (inP r (fun x:nat => (outP o x zeroP)))
+      (outP r (1) zeroP))).
+apply red_com_deter_inout.
+
+eapply no_action_not_congruent_in.
+exact O.
+simpl.
+apply is_guarded_is_guarded.
+simpl.
+reflexivity.
+CheckNotInChanList2 H.
+simpl.
+CheckInc.
+
+eapply no_action_not_congruent_out.
+simpl.
+apply is_guarded_is_guarded.
+simpl.
+reflexivity.
+CheckNotInChanList2 H.
+simpl.
+CheckInc.
+CheckStable.
+generalize H; CheckListSet.
+auto.
+CheckInc.
+apply now_is_FMUSTEV.
+apply STAT_sat.
+SolveOROUTPUTS.
+auto.
+
+ProcCong.
+intro X; rewrite X; clear X.
+apply now_is_FMUSTEV.
+apply STAT_sat.
+SolveOROUTPUTS.
+auto.
+Qed.
+
+
+
+
+
+
+

@@ -1,0 +1,21 @@
+SMTP_applpi_exceptions.vo: SMTP_applpi_exceptions.v
+SMTP_applpi_exceptions.vi: SMTP_applpi_exceptions.v
+SMTP_applpi_string.vo: SMTP_applpi_string.v
+SMTP_applpi_string.vi: SMTP_applpi_string.v
+SMTP_applpi_filesystem.vo: SMTP_applpi_filesystem.v SMTP_applpi_string.vo
+SMTP_applpi_filesystem.vi: SMTP_applpi_filesystem.v SMTP_applpi_string.vo
+SMTP_applpi_rfc821.vo: SMTP_applpi_rfc821.v SMTP_applpi_string.vo
+SMTP_applpi_rfc821.vi: SMTP_applpi_rfc821.v SMTP_applpi_string.vo
+SMTP_applpi.vo: SMTP_applpi.v SMTP_applpi_string.vo SMTP_applpi_rfc821.vo SMTP_applpi_filesystem.vo SMTP_applpi_exceptions.vo
+SMTP_applpi.vi: SMTP_applpi.v SMTP_applpi_string.vo SMTP_applpi_rfc821.vo SMTP_applpi_filesystem.vo SMTP_applpi_exceptions.vo
+SMTP_applpi_spec.vo: SMTP_applpi_spec.v SMTP_applpi_string.vo SMTP_applpi_rfc821.vo SMTP_applpi.vo
+SMTP_applpi_spec.vi: SMTP_applpi_spec.v SMTP_applpi_string.vo SMTP_applpi_rfc821.vo SMTP_applpi.vo
+SMTP_th1.vo: SMTP_th1.v SMTP_applpi_string.vo SMTP_applpi_rfc821.vo SMTP_applpi_filesystem.vo SMTP_applpi_exceptions.vo SMTP_applpi_spec.vo SMTP_applpi.vo
+SMTP_th1.vi: SMTP_th1.v SMTP_applpi_string.vo SMTP_applpi_rfc821.vo SMTP_applpi_filesystem.vo SMTP_applpi_exceptions.vo SMTP_applpi_spec.vo SMTP_applpi.vo
+SMTP_applpi_exceptions.html: SMTP_applpi_exceptions.v
+SMTP_applpi_string.html: SMTP_applpi_string.v
+SMTP_applpi_filesystem.html: SMTP_applpi_filesystem.v SMTP_applpi_string.html
+SMTP_applpi_rfc821.html: SMTP_applpi_rfc821.v SMTP_applpi_string.html
+SMTP_applpi.html: SMTP_applpi.v SMTP_applpi_string.html SMTP_applpi_rfc821.html SMTP_applpi_filesystem.html SMTP_applpi_exceptions.html
+SMTP_applpi_spec.html: SMTP_applpi_spec.v SMTP_applpi_string.html SMTP_applpi_rfc821.html SMTP_applpi.html
+SMTP_th1.html: SMTP_th1.v SMTP_applpi_string.html SMTP_applpi_rfc821.html SMTP_applpi_filesystem.html SMTP_applpi_exceptions.html SMTP_applpi_spec.html SMTP_applpi.html

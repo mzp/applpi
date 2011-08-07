@@ -1,0 +1,54 @@
+touch .depend
+coq_makefile util.v eqdep.v listT.v chan.v chanlist.v > Makefile.core
+make -f Makefile.core depend
+make -f Makefile.core
+
+touch .depend
+coq_makefile applpi.v inj.v inv.v inv_dis.v > Makefile.applpi
+make -f Makefile.applpi depend
+make -f Makefile.applpi 
+
+touch .depend
+coq_makefile fresh.v set.v redseq.v inv2.v trans_trans2.v > Makefile.semop
+make -f Makefile.semop depend
+make -f Makefile.semop
+
+touch .depend
+coq_makefile cong.v cong_tactic.v cong_resp.v cong_inj_dis.v cong_trans.v cong_trans2.v > Makefile.cong
+make -f Makefile.cong depend
+make -f Makefile.cong
+
+touch .depend
+coq_makefile logic.v free_chans.v logic_prop.v logic_tactic.v logic_tactic2.v > Makefile.logic
+make -f Makefile.logic depend
+make -f Makefile.logic
+
+touch depend
+coq_makefile util_for_tactics.v stable.v datatypes_for_tactics.v > Makefile.stable
+make -f Makefile.stable depend
+make -f Makefile.stable
+
+touch depend
+coq_makefile logic_extensions.v mu.v > Makefile.extensions
+make -f Makefile.extensions depend
+make -f Makefile.extensions
+
+touch depend
+coq_makefile conf_red_com_always_tactic.v stable_tactic.v conf_red.v conf_red_new_tactic.v red_deter.v red_nondeter.v red_nondeter_tactic.v > Makefile.conf
+make -f Makefile.conf depend
+make -f Makefile.conf
+
+touch depend
+coq_makefile libapplpi.v > Makefile.lib
+make -f Makefile.lib depend
+make -f Makefile.lib
+
+cd mail-server
+
+touch depend
+coq_makefile SMTP_applpi_exceptions.v SMTP_applpi_string.v SMTP_applpi_filesystem.v SMTP_applpi_rfc821.v SMTP_applpi.v SMTP_applpi_spec.v SMTP_th1.v > Makefile.mail_server
+make -f Makefile.mail_server depend
+make -f Makefile.mail_server
+
+cd ..
+

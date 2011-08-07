@@ -1,0 +1,11 @@
+for i in Makefile.*; do make -f $i clean; done
+rm -Rf *.html
+rm -Rf Makefile.*
+
+cd mail-server
+
+for i in Makefile.*; do make -f $i clean; done
+rm -Rf *.html
+rm -Rf Makefile.*
+
+cd ..
