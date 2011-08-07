@@ -22,12 +22,12 @@ Notation "c << v >> P" := (outP c v P) (at level 40).
 Notation "c ?? P" := (inP c P) (at level 40).
 Notation "c ??* P" := (rinP c P) (at level 40).
 
-Definition OutAtom (A : Set) (b : bool) (x : chan A b) (v : A) := 
+Definition OutAtom (A : Set) (b : bool) (x : chan A b) (v : A) :=
   x << v >> zeroP.
 Definition InAtom (A : Set) (b : bool) (x : chan A b) :=
   x ?? (fun y => zeroP).
 
-Definition Cheq (A : Set) (a' : bool) (a : chan A a') 
+Definition Cheq (A : Set) (a' : bool) (a : chan A a')
   (B : Set) (b' : bool) (b : chan B b') : bool :=
   match chan_dec a b with
   | left yes => true
@@ -67,17 +67,17 @@ Inductive Trans : proc -> TrLabel -> proc -> Prop :=
 (** freshness *)
 
 Definition fresh (A : Set) (b : bool) (c : chan A b) (L : ChanList) :=
-  forall (B : Set) (b' : bool) (d : chan B b'), 
-    in_ChanList d L -> ~ c && d.
+  forall (B : Set) (b' : bool) (d : chan B b'),
+    in_ChanList d L -> ~ c &&& d.
 
 (** there are infinitely many non-linearized and linearized channels,
 note that a process cannot use the axiom to create new channels because
 Coq does not allow case analysis on type Prop:
-fun x:proc => match (my_choose_fresh A x) with (exist y _) => y 
+fun x:proc => match (my_choose_fresh A x) with (exist y _) => y
  *)
-Axiom choose_fresh : forall (A : Set) (L : ChanList), 
+Axiom choose_fresh : forall (A : Set) (L : ChanList),
   exists x : chan A false, fresh x L.
-Axiom choose_freshl : forall (A : Set) (L : ChanList), 
+Axiom choose_freshl : forall (A : Set) (L : ChanList),
   exists x : chan A true, fresh x L.
 
 (** reduction semantics *)

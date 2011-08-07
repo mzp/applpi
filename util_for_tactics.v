@@ -7,9 +7,9 @@ Require Import logic.
  (** miscellaneous meta-level functions used in tactics *)
 
 Ltac test_chan c d :=
-  match constr:(c && d) with
-  | (?X1 && ?X1) => idtac
-  | (?X1 && ?X2) => fail
+  match constr:(c &&& d) with
+  | (?X1 &&& ?X1) => idtac
+  | (?X1 &&& ?X2) => fail
   end.
 
 
@@ -70,7 +70,7 @@ Ltac ChooseFreshL_set typ name :=
   match goal with
   | id0:(ChanList_is_set ?X2) |- (tsat ?X1 (?X2 # ?X3)) =>
       elim (choose_freshl typ X2); intro name; intro _X;
-       generalize (chanlist_is_set_extend X2 id0 _ _ _ _X); 
+       generalize (chanlist_is_set_extend X2 id0 _ _ _ _X);
        clear _X id0; intro id0
   end.
 
@@ -78,7 +78,7 @@ Ltac ChooseFresh_set typ name :=
   match goal with
   | id0:(ChanList_is_set ?X2) |- (tsat ?X1 (?X2 # ?X3)) =>
       elim (choose_fresh typ X2); intro name; intro _X;
-       generalize (chanlist_is_set_extend X2 id0 _ _ _ _X); 
+       generalize (chanlist_is_set_extend X2 id0 _ _ _ _X);
        clear _X id0; intro id0
   end.
 
@@ -88,13 +88,13 @@ Ltac ChooseFresh_set typ name :=
 Cases P of
   (parP zeroP Q) => (elim_zero_proc Q)
 | (parP Q zeroP) => (elim_zero_proc Q)
-| (parP Q R) => (parP (elim_zero_proc Q) (elim_zero_proc R)) 
+| (parP Q R) => (parP (elim_zero_proc Q) (elim_zero_proc R))
 | _ => P
 end.*)
 
 (*Tactic Definition clean_zero :=
 Match Context With
-[ |- (tsat ?1 ?2#?3) ] -> 
+[ |- (tsat ?1 ?2#?3) ] ->
 Let tmp=(Eval Cbv Beta Delta [elim_zero_proc] Iota Zeta in (elim_zero_proc ?3)) In*)
 (* we need to unfold the function but not other functions inside the term! *)
 (*Apply cong_resp_sat with tmp;

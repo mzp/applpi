@@ -1,4 +1,4 @@
-Add LoadPath "/home/affeldt/src/coq/applpi".
+Add LoadPath "/Users/mzp/Downloads/applpi".
 
 Require Import libapplpi.
 
@@ -40,7 +40,7 @@ Recursive Extraction work.
 
 Axiom unit_isnot_chan : forall (A : Set) (b : bool), unit <> chan A b.
 
-Lemma myfree_vars' : free_vars 
+Lemma myfree_vars' : free_vars
   (result_chan & IOexn_chan & system_failure_chan & nilC)
   (OR (OUTPUTS result_chan tt ISANY)
     (OR (OUTPUTS IOexn_chan tt ISANY)
@@ -105,11 +105,11 @@ Lemma myfree_vars' : free_vars
   auto.
 Qed.
 
-Lemma myfree_vars : tfree_vars 
+Lemma myfree_vars : tfree_vars
   (result_chan & IOexn_chan & system_failure_chan & nilC)
   (ALWAYS (STAT reports_succ_or_error)).
-  generalize (free_vars_always 
-    (result_chan & IOexn_chan & system_failure_chan & nilC) 
+  generalize (free_vars_always
+    (result_chan & IOexn_chan & system_failure_chan & nilC)
     (STAT reports_succ_or_error)); intro.
   inversion_clear H.
   apply H0.
@@ -319,7 +319,7 @@ auto.
 auto.
 Qed.
 
-Theorem server_accepts_valid_protocol' : 
+Theorem server_accepts_valid_protocol' :
   forall Client : InputStream -> OutputStream -> proc,
     (forall (s : InputStream) (y : OutputStream),
       exists C1 : proc,
@@ -334,8 +334,8 @@ Theorem server_accepts_valid_protocol' :
           nuPl (fun s2 : OutputStream =>
             nuPl (fun tofs : ToFileSystem =>
               parP (Client s1 s2)
-              (parP (work s1 s2 tofs) 
-                (parP (file_system tofs) 
+              (parP (work s1 s2 tofs)
+                (parP (file_system tofs)
                   may_fail))))))
     |=t (FMUSTEV (ALWAYS (STAT reports_succ_or_error))).
 intros Client HClient file_system Hfs SET.
@@ -345,8 +345,8 @@ apply cong_resp_tsat with
            nuPl (fun s2 : OutputStream =>
               nuPl (fun tofs : ToFileSystem =>
                  parP (Client s1 s2)
-                   (parP (work s1 s2 tofs) 
-                     (parP (file_system tofs) 
+                   (parP (work s1 s2 tofs)
+                     (parP (file_system tofs)
                        may_fail))))))).
 apply red_new_deterl.
 CheckStable.
@@ -2574,7 +2574,7 @@ CheckNotInChanList2 SET.
 
 red in |- *; simpl in |- *; split; [ auto | ProcCong ].
 
-(* cmd rcpt *) 
+(* cmd rcpt *)
 
 unfold reply_no_mail_from, reply in |- *.
 simpl in |- *.
@@ -2753,7 +2753,7 @@ CheckNotInChanList2 SET.
 
 red in |- *; simpl in |- *; split; [ auto | ProcCong ].
 
-(* cmd_data *) 
+(* cmd_data *)
 
 unfold reply_no_helo, reply in |- *.
 simpl in |- *.
@@ -5961,7 +5961,7 @@ auto.
 CheckIncWeak.
 CheckSearchInc.
 
-ProcCong.	   
+ProcCong.
 
 (* cas ou une erreur reseau apparait dans l'interface du client *)
 
@@ -6172,7 +6172,7 @@ CheckNotInChanList2 H4.
 
 red in |- *; simpl in |- *; split; [ auto | ProcCong ].
 
-ProcCong.	   
+ProcCong.
 
 (* case cmd_noop *)
 
@@ -6499,7 +6499,7 @@ CheckNotInChanList2 H4.
 
 red in |- *; simpl in |- *; split; [ auto | ProcCong ].
 
-ProcCong.	   
+ProcCong.
 
 (* case cmd_rset *)
 
@@ -6827,7 +6827,7 @@ CheckNotInChanList2 H4.
 
 red in |- *; simpl in |- *; split; [ auto | ProcCong ].
 
-ProcCong.	   
+ProcCong.
 
 (* case cmd_quit *)
 
@@ -7029,7 +7029,7 @@ CheckNotInChanList2 SET.
 CheckNotInChanList2 SET.
 
 red in |- *; simpl in |- *; split; [ auto | ProcCong ].
-    
+
 intros failc failcfresh.
 
 assert
@@ -7170,7 +7170,7 @@ CheckNotInChanList2 H4.
 
 red in |- *; simpl in |- *; split; [ auto | ProcCong ].
 
-ProcCong.	   
+ProcCong.
 
 (* case where the client emits a IO error *)
 
@@ -7663,7 +7663,7 @@ CheckNotInChanList2 H1.
 
 red in |- *; simpl in |- *; split; [ auto | ProcCong ].
 
-ProcCong.	   
+ProcCong.
 
 (* third subgoal : if the behavior is ok beyond the rcpt message with
 a non-nil list of forward paths, it is ok beyond the rcpt message with
@@ -7879,7 +7879,7 @@ CheckNotInChanList2 SET.
 CheckNotInChanList2 SET.
 
 red in |- *; simpl in |- *; split; [ auto | ProcCong ].
-    
+
 intros failc failcfresh.
 
 assert
@@ -8028,7 +8028,7 @@ CheckNotInChanList2 H7.
 
 red in |- *; simpl in |- *; split; [ auto | ProcCong ].
 
-ProcCong.	   
+ProcCong.
 
 (* case cmd_quit *)
 
@@ -9113,7 +9113,7 @@ CheckNotInChanList2 SET.
 
 
 red in |- *; simpl in |- *; split; [ auto | ProcCong ].
-    
+
 intros failc failcfresh.
 
 assert
@@ -9260,7 +9260,7 @@ CheckNotInChanList2 H4.
 
 red in |- *; simpl in |- *; split; [ auto | ProcCong ].
 
-ProcCong.	   
+ProcCong.
 
 (* dup_mail_from *)
 
@@ -9446,7 +9446,7 @@ CheckNotInChanList2 SET.
 
 
 red in |- *; simpl in |- *; split; [ auto | ProcCong ].
-    
+
 intros failc failcfresh.
 
 assert
@@ -9593,7 +9593,7 @@ CheckNotInChanList2 H4.
 
 red in |- *; simpl in |- *; split; [ auto | ProcCong ].
 
-ProcCong.	   
+ProcCong.
 
 (* do rcpt to *)
 
@@ -9783,7 +9783,7 @@ CheckNotInChanList2 SET.
 
 
 red in |- *; simpl in |- *; split; [ auto | ProcCong ].
-    
+
 intros failc failcfresh.
 
 assert
@@ -9930,7 +9930,7 @@ CheckNotInChanList2 H6.
 
 red in |- *; simpl in |- *; split; [ auto | ProcCong ].
 
-ProcCong.	   
+ProcCong.
 
 case (is_not_null_a_d_l x).
 auto.
@@ -10103,7 +10103,7 @@ CheckNotInChanList2 SET.
 
 
 red in |- *; simpl in |- *; split; [ auto | ProcCong ].
-    
+
 intros failc failcfresh.
 
 assert
@@ -10250,7 +10250,7 @@ CheckNotInChanList2 H5.
 
 red in |- *; simpl in |- *; split; [ auto | ProcCong ].
 
-ProcCong.	   
+ProcCong.
 
 case (string_to_Rfc821path s).
 intro r; left; exists r; auto.
@@ -10425,7 +10425,7 @@ CheckNotInChanList2 SET.
 
 
 red in |- *; simpl in |- *; split; [ auto | ProcCong ].
-    
+
 intros failc failcfresh.
 
 assert
@@ -10572,7 +10572,7 @@ CheckNotInChanList2 H5.
 
 red in |- *; simpl in |- *; split; [ auto | ProcCong ].
 
-ProcCong.	   
+ProcCong.
 
 (* case noop *)
 
@@ -10740,7 +10740,7 @@ CheckNotInChanList2 SET.
 
 
 red in |- *; simpl in |- *; split; [ auto | ProcCong ].
-    
+
 intros failc failcfresh.
 
 assert
@@ -10887,7 +10887,7 @@ CheckNotInChanList2 H4.
 
 red in |- *; simpl in |- *; split; [ auto | ProcCong ].
 
-ProcCong.	   
+ProcCong.
 
 (* cmd_rset *)
 
@@ -11078,7 +11078,7 @@ CheckNotInChanList2 SET.
 
 
 red in |- *; simpl in |- *; split; [ auto | ProcCong ].
-    
+
 intros failc failcfresh.
 
 assert
@@ -11225,7 +11225,7 @@ CheckNotInChanList2 H4.
 
 red in |- *; simpl in |- *; split; [ auto | ProcCong ].
 
-ProcCong.	   
+ProcCong.
 
 (* case where the client emits an IO error *)
 
@@ -11746,10 +11746,10 @@ CheckNotInChanList2 H1.
 
 red in |- *; simpl in |- *; split; [ auto | ProcCong ].
 
-ProcCong.	   
+ProcCong.
 
 (* fourth subgoal : if the behavior is ok beyond the mail message,
-then it is ok beyond the rcpt message with a non-empty list of 
+then it is ok beyond the rcpt message with a non-empty list of
 forward paths *)
 
 intros data P HP.
@@ -14048,7 +14048,7 @@ simpl in |- *.
 unfold reply_ok_rcpt_to in |- *.
 unfold reply in |- *.
 
-inversion_clear HClient2.	   
+inversion_clear HClient2.
 ConfRedComAlways.
 
 apply
@@ -15939,7 +15939,7 @@ CheckNotInChanList2 H1.
 
 red in |- *; simpl in |- *; split; [ auto | ProcCong ].
 
-ProcCong.	   
+ProcCong.
 ProcCong.
 Qed.
 

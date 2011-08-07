@@ -1,6 +1,6 @@
-Add LoadPath "/home/affeldt/src/coq/applpi".
+Add LoadPath "/Users/mzp/Downloads/applpi".
 Require libapplpi.
-Add LoadPath "/home/affeldt/src/coq/applpi/mail-server".
+Add LoadPath "/Users/mzp/Downloads/applpi/mail-server".
 Load "SMTP_applpi_string.v".
 Load "SMTP_applpi_Exceptions.v".
 Load "SMTP_FileSystem.v".

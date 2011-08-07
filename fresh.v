@@ -42,7 +42,7 @@ red in |- *.
 intros.
 intro.
 apply H.
-assert (d && c).
+assert (d &&& c).
 auto.
 elim H2.
 auto.

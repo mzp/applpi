@@ -17,20 +17,20 @@ Set Implicit Arguments.
 Inductive notinp (A:Set) (b:bool) (c : chan A b) : proc -> Prop :=
   | zero_notin : notinp c zeroP
   | in_notin : forall B b' (d : chan B b') C,
-      ~ c && d ->
+      ~ c &&& d ->
       (forall x, ~ (x %% c) -> notinp c (C x)) -> notinp c (d ?? C)
   | rin_notin : forall B b' (d : chan B b') C,
-      ~ c && d ->
+      ~ c &&& d ->
       (forall x, ~ (x %% c) -> notinp c (C x)) -> notinp c (d ??* C)
   | out_notin : forall B b' (d : chan B b') v C,
-      ~ c && d -> ~ (c %% v) -> notinp c C -> notinp c (d << v >> C)
-  | par_notin : forall P Q, 
+      ~ c &&& d -> ~ (c %% v) -> notinp c C -> notinp c (d << v >> C)
+  | par_notin : forall P Q,
     notinp c P -> notinp c Q -> notinp c (parP P Q)
   | nu_notin : forall B (C : chan B false -> proc),
-      (forall d, ~ c && d -> notinp c (C d)) ->
+      (forall d, ~ c &&& d -> notinp c (C d)) ->
       notinp c (nuP C)
   | nul_notin : forall B (C : chan B true -> proc),
-      (forall d, ~ c && d -> notinp c (C d)) ->
+      (forall d, ~ c &&& d -> notinp c (C d)) ->
       notinp c (nuPl C).
 
 (** inversion lemmas for the notinp predicate *)
@@ -39,7 +39,7 @@ Lemma inv_out_notinp' :
  forall A b (c : chan A b) P,
  notinp c P ->
  forall B b' (d : chan B b') v C,
- P = d << v >> C -> ~ c && d /\ ~ (c %% v) /\ notinp c C.
+ P = d << v >> C -> ~ c &&& d /\ ~ (c %% v) /\ notinp c C.
 intros A b c P H.
 induction H
  as
@@ -77,7 +77,7 @@ Qed.
 
 Lemma inv_out_notinp :
  forall A b (c : chan A b) B b' (d : chan B b') v C,
-   notinp c (d << v >> C) -> ~ c && d /\ ~ (c %% v) /\ notinp c C.
+   notinp c (d << v >> C) -> ~ c &&& d /\ ~ (c %% v) /\ notinp c C.
 intros.
 eapply inv_out_notinp'.
 apply H.
@@ -88,7 +88,7 @@ Lemma inv_in_notinp' :
     forall A b (c : chan A b) P,
     notinp c P ->
     forall B b' (d : chan B b') C,
-    P = d ?? C -> ~ c && d /\ (forall x, ~ (x %% c) -> notinp c (C x)).
+    P = d ?? C -> ~ c &&& d /\ (forall x, ~ (x %% c) -> notinp c (C x)).
 induction 1; intros.
 discriminate H.
 generalize (inP_inj1 H2); intros.
@@ -109,7 +109,7 @@ Qed.
 Lemma inv_in_notinp :
  forall A b (c : chan A b) B b' (d : chan B b') C,
  notinp c (d ?? C) ->
- ~ c && d /\ (forall x, ~ (x %% c) -> notinp c (C x)).
+ ~ c &&& d /\ (forall x, ~ (x %% c) -> notinp c (C x)).
 intros.
 eapply inv_in_notinp'.
 apply H.
@@ -120,7 +120,7 @@ Lemma inv_rin_notinp' :
   forall A b (c : chan A b) P,
     notinp c P ->
     forall B b' (d : chan B b') C,
-      P = d ??* C -> ~ c && d /\ (forall x, ~ (x %% c) -> notinp c (C x)).
+      P = d ??* C -> ~ c &&& d /\ (forall x, ~ (x %% c) -> notinp c (C x)).
 induction 1; intros; try discriminate.
 generalize (rinP_inj1 H2); intros.
 inversion_clear H3.
@@ -135,7 +135,7 @@ Qed.
 Lemma inv_rin_notinp :
   forall A b (c : chan A b) B b' (d : chan B b') C,
     notinp c (d ??* C) ->
-    ~ c && d /\ (forall x, ~ (x %% c) -> notinp c (C x)).
+    ~ c &&& d /\ (forall x, ~ (x %% c) -> notinp c (C x)).
 intros.
 eapply inv_rin_notinp'.
 apply H.
@@ -146,7 +146,7 @@ Lemma inv_nul_notin' :
   forall A b (c : chan A b) P,
     notinp c P ->
     forall B (C : chan B true -> proc),
-      P = nuPl C -> forall d, ~ c && d -> notinp c (C d).
+      P = nuPl C -> forall d, ~ c &&& d -> notinp c (C d).
 induction 1; intros; try discriminate.
 generalize (nuPl_inj1 H1); intro.
 subst B0.
@@ -158,8 +158,8 @@ Qed.
 
 Lemma inv_nul_notin :
   forall A b (c : chan A b) B (C : chan B true -> proc),
-    notinp c (nuPl C) -> 
-    forall d, ~ c && d -> notinp c (C d).
+    notinp c (nuPl C) ->
+    forall d, ~ c &&& d -> notinp c (C d).
 intros.
 apply inv_nul_notin' with (d := d) (P := nuPl C).
 auto.
@@ -171,8 +171,8 @@ Lemma inv_nu_notin' :
   forall A b (c : chan A b) P,
     notinp c P ->
     forall B (C : chan B false -> proc),
-      P = nuP C -> 
-      forall d, ~ c && d -> notinp c (C d).
+      P = nuP C ->
+      forall d, ~ c &&& d -> notinp c (C d).
 induction 1; intros; try discriminate.
 generalize (nuP_inj1 H1); intro.
 subst B0.
@@ -184,8 +184,8 @@ Qed.
 
 Lemma inv_nu_notin :
   forall A b (c : chan A b) B (C : chan B false -> proc),
-    notinp c (nuP C) -> 
-    forall d, ~ c && d -> notinp c (C d).
+    notinp c (nuP C) ->
+    forall d, ~ c &&& d -> notinp c (C d).
 intros.
 apply inv_nu_notin' with (d := d) (P := nuP C).
 auto.
@@ -199,7 +199,7 @@ Definition isinp A b (c : chan A b) p : Prop := ~ notinp c p.
 
 Lemma in_isinp :
  forall A b (c : chan A b) P A' b' (d : chan A' b'),
-   (exists z, ~ (z %% d) /\ isinp d (P z)) -> isinp d (c ?? P). 
+   (exists z, ~ (z %% d) /\ isinp d (P z)) -> isinp d (c ?? P).
 intros.
 inversion_clear H.
 inversion_clear H0.
@@ -211,7 +211,7 @@ Qed.
 
 Lemma rin_isinp :
   forall A b (c : chan A b) P A' b' (d : chan A' b'),
-    (exists z, ~ (z %% d) /\ isinp d (P z)) -> isinp d (c ??* P). 
+    (exists z, ~ (z %% d) /\ isinp d (P z)) -> isinp d (c ??* P).
 intros.
 inversion_clear H.
 inversion_clear H0.
@@ -225,7 +225,7 @@ Qed.
 
 Lemma inv_out_isinp :
  forall A b (c : chan A b) v P A' b' (d : chan A' b'),
-   isinp d (c << v >> P) -> d && c \/ (d %% v) \/ isinp d P.
+   isinp d (c << v >> P) -> d &&& c \/ (d %% v) \/ isinp d P.
 intros.
 apply NNPP; intro.
 apply H.
@@ -242,7 +242,7 @@ Qed.
 
 Lemma inv_in_isinp :
  forall A b (c : chan A b) P A' b' (d : chan A' b'),
- isinp d (c ?? P) -> d && c \/ (exists z, ~ (z %% d) /\ isinp d (P z)).
+ isinp d (c ?? P) -> d &&& c \/ (exists z, ~ (z %% d) /\ isinp d (P z)).
 intros.
 apply NNPP; intro.
 apply H.
@@ -258,7 +258,7 @@ Qed.
 
 Lemma inv_rin_isinp :
  forall A b (c : chan A b) P A' b' (d : chan A' b'),
- isinp d (c ??* P) -> d && c \/ (exists z, ~ (z %% d) /\ isinp d (P z)).
+ isinp d (c ??* P) -> d &&& c \/ (exists z, ~ (z %% d) /\ isinp d (P z)).
 intros.
 apply NNPP; intro.
 apply H.
@@ -289,7 +289,7 @@ Qed.
 
 Lemma inv_nu_isinp :
  forall A (P : chan A false -> proc) A' b' (d : chan A' b'),
-   isinp d (nuP P) -> exists z, ~ z && d /\ isinp d (P z).
+   isinp d (nuP P) -> exists z, ~ z &&& d /\ isinp d (P z).
 intros.
 apply NNPP; intro.
 apply H.
@@ -379,8 +379,8 @@ Qed.
 
 Lemma cong_respects_notinp :
   forall A b (c : chan A b) P,
-    notinp c P -> 
-    forall Q, 
+    notinp c P ->
+    forall Q,
       Cong P Q -> notinp c Q.
 intros.
 generalize (cong_respects_notinp' H0); intros.
@@ -389,8 +389,8 @@ Qed.
 
 Lemma cong_respects_isinp :
   forall A b (c : chan A b) P,
-    isinp c P -> 
-    forall Q, 
+    isinp c P ->
+    forall Q,
       Cong P Q -> isinp c Q.
 intros.
 intro; apply H; eapply cong_respects_notinp.
@@ -406,7 +406,7 @@ Lemma notinp_trans_OutL' :
     forall P' L,
       Trans P L P' ->
       forall B b' (d : chan B b') v,
-	L = OutL d v -> notinp c P' /\ ~ c && d /\ ~ (c %% v).
+	L = OutL d v -> notinp c P' /\ ~ c &&& d /\ ~ (c %% v).
 intros A b c P H P' L H0.
 induction H0
  as
@@ -462,7 +462,7 @@ Lemma notinp_trans_OutL :
   forall A b (c : chan A b) P,
     notinp c P ->
     forall P' B b' (d : chan B b') v,
-      Trans P (OutL d v) P' -> notinp c P' /\ ~ c && d /\ ~ (c %% v).
+      Trans P (OutL d v) P' -> notinp c P' /\ ~ c &&& d /\ ~ (c %% v).
 intros.
 apply notinp_trans_OutL' with (d := d) (v := v) (L := OutL d v) (P := P).
 auto.
@@ -476,7 +476,7 @@ Lemma notinp_trans_InL' :
     forall P' L,
       Trans P L P' ->
       forall B b' (d : chan B b') v,
-	~ (v %% c) -> L = InL d v -> notinp c P' /\ ~ c && d.
+	~ (v %% c) -> L = InL d v -> notinp c P' /\ ~ c &&& d.
 intros A b c P H P' L H0.
 induction H0
  as
@@ -558,7 +558,7 @@ Lemma notinp_trans_InL :
   forall A b (c : chan A b) P,
     notinp c P ->
     forall P' B b' (d : chan B b') v,
-      ~ (v %% c) -> Trans P (InL d v) P' -> notinp c P' /\ ~ c && d.
+      ~ (v %% c) -> Trans P (InL d v) P' -> notinp c P' /\ ~ c &&& d.
 intros.
 eapply notinp_trans_InL' with (d := d) (v := v) (P := P) (L := InL d v).
 auto.
@@ -572,7 +572,7 @@ Lemma notinp_trans_TauL' :
     notinp c P ->
     forall P' L,
       Trans P L P' ->
-      forall B b' (d : chan B b'), 
+      forall B b' (d : chan B b'),
 	L = TauL d -> notinp c P'.
 intros A b c P H P' L H0.
 induction H0
@@ -683,7 +683,7 @@ Lemma notinp_trans_NewL' :
     forall P' L,
       Trans P L P' ->
       forall B b' (d : chan B b'),
-	L = NewL d -> ~ d && c -> notinp c P'.
+	L = NewL d -> ~ d &&& c -> notinp c P'.
 intros.
 induction H0.
 discriminate H1.
@@ -715,7 +715,7 @@ Lemma notinp_trans_NewL :
   forall A b (c : chan A b) P,
     notinp c P ->
     forall P' B b' (d : chan B b'),
-      Trans P (NewL d) P' -> ~ d && c -> notinp c P'.
+      Trans P (NewL d) P' -> ~ d &&& c -> notinp c P'.
 intros.
 apply notinp_trans_NewL' with (P := P) (d := d) (L := NewL d); auto.
 Qed.
@@ -728,7 +728,7 @@ Lemma isinp_trans_OutL' :
     forall P' L,
       Trans P L P' ->
       forall B b' (d : chan B b') v,
-	L = OutL d v -> ~ d && c -> ~ (v %% c) -> isinp c P'.
+	L = OutL d v -> ~ d &&& c -> ~ (v %% c) -> isinp c P'.
 intros A b c P H P' L H0.
 induction H0
  as
@@ -794,7 +794,7 @@ Lemma isinp_trans_OutL :
   forall A b (c : chan A b) P,
     isinp c P ->
     forall P' B b' (d : chan B b') v,
-      Trans P (OutL d v) P' -> ~ d && c -> ~ (v %% c) -> isinp c P'.
+      Trans P (OutL d v) P' -> ~ d &&& c -> ~ (v %% c) -> isinp c P'.
 intros.
 apply isinp_trans_OutL' with (P := P) (d := d) (v := v) (L := OutL d v).
 auto.
@@ -975,7 +975,7 @@ Lemma isinp_trans_tau' :
     Trans P K P' ->
     forall A b (c : chan A b),
       K = TauL c ->
-      forall B b' (d : chan B b'), 
+      forall B b' (d : chan B b'),
 	isinp d P' -> isinp d P.
 do 4 intro.
 induction H
@@ -1066,7 +1066,7 @@ Qed.
 Lemma isinp_trans_tau :
   forall P P' A b (c : chan A b),
     Trans P (TauL c) P' ->
-    forall B b' (d : chan B b'), 
+    forall B b' (d : chan B b'),
       isinp d P' -> isinp d P.
 intros.
 eapply isinp_trans_tau' with (K := TauL c) (P' := P') (c := c).
@@ -1117,7 +1117,7 @@ Qed.
 
 Lemma isin_proc_mono_nu :
   forall A (C : chan A false -> proc) B b (c : chan B b) x,
-    isinp c (C x) -> ~ x && c -> isinp c (nuP C).
+    isinp c (C x) -> ~ x &&& c -> isinp c (nuP C).
 intros.
 intro.
 apply H.
@@ -1127,7 +1127,7 @@ Qed.
 
 Lemma isin_proc_mono_nul :
   forall A (C : chan A true -> proc) B b (c : chan B b) x,
-    isinp c (C x) -> ~ x && c -> isinp c (nuPl C).
+    isinp c (C x) -> ~ x &&& c -> isinp c (nuPl C).
 intros.
 intro.
 apply H.
@@ -1142,7 +1142,7 @@ Lemma free_chans_trans_new' :
       K = NewL c ->
       forall L,
 	free_chans L P ->
-	fresh c L -> 
+	fresh c L ->
 	forall L', free_chans L' P' -> incC L' (c & L).
 do 4 intro.
 induction H
@@ -1171,7 +1171,7 @@ rewrite <- H3; rewrite <- H3 in H1; clear H3 H c.
 red in |- *; intros.
 generalize (H2 _ _ c); intro X; inversion_clear X.
 generalize (H4 H); clear H3 H4; intro.
-elim (classic (x && c)); intro.
+elim (classic (x &&& c)); intro.
 simpl in |- *; auto.
 simpl in |- *; right.
 generalize (isin_proc_mono_nul H3 H4); intro.
@@ -1186,7 +1186,7 @@ rewrite <- H3; rewrite <- H3 in H1; clear H3 H c.
 red in |- *; intros.
 generalize (H2 _ _ c); intro X; inversion_clear X.
 generalize (H4 H); clear H3 H4; intro.
-elim (classic (x && c)); intro.
+elim (classic (x &&& c)); intro.
 simpl in |- *; auto.
 simpl in |- *; right.
 generalize (isin_proc_mono_nu H3 H4); intro.
@@ -1198,7 +1198,7 @@ intros.
 discriminate H0.
 intros.
 red in |- *; intros.
-elim (classic (c && c0)); intro.
+elim (classic (c &&& c0)); intro.
 simpl in |- *; auto.
 generalize (H3 _ _ c0); intro X; inversion_clear X.
 generalize (H7 H4); clear H7 H6; intros.
@@ -1225,7 +1225,7 @@ generalize (H9 H8); intro; clear H10 H9.
 simpl in |- *; auto.
 intros.
 red in |- *; intros.
-elim (classic (c && c0)); intro.
+elim (classic (c &&& c0)); intro.
 simpl in |- *; auto.
 generalize (H3 _ _ c0); intro X; inversion_clear X.
 generalize (H7 H4); clear H7 H6; intros.
@@ -1320,7 +1320,7 @@ auto.
 auto.
 simpl in |- *.
 split.
-assert (~ x0 && c).
+assert (~ x0 &&& c).
 rewrite <- H5 in H2; inversion_clear H2.
 simpl in H9.
 red in H4.

@@ -8,11 +8,11 @@ Require Import fresh.
    * sets
    ***)
 
-Fixpoint fresh_func (A : Set) (aa : bool) (c : chan A aa) 
+Fixpoint fresh_func (A : Set) (aa : bool) (c : chan A aa)
  (L : ChanList) {struct L} : Prop :=
   match L with
   | nilC => True
-  | consC B bb d tl => ~ c && d /\ fresh_func A aa c tl
+  | consC B bb d tl => ~ c &&& d /\ fresh_func A aa c tl
   end.
 
 
@@ -224,7 +224,7 @@ generalize (fresh_func2pred _ _ _ _ H0); intro.
 red in H5.
 apply H5.
 generalize (in_chanlist_app_com L (c & K) _ _ d); intros.
-inversion_clear H6.  
+inversion_clear H6.
 apply H8; clear H8 H7.
 simpl in |- *.
 generalize (in_chanlist_app_com L K _ _ d); intro.

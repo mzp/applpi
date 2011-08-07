@@ -38,7 +38,7 @@ If form lies in Prop, we can write in an indirect way the satisfiability predica
 however since we do not need induction on formulas, we axiomatize the satisfiability
 relation.*)
 
-(** satisfaction relation *) 
+(** satisfaction relation *)
 
 Axiom sat : form -> state -> Prop.
 
@@ -76,27 +76,27 @@ Axiom CONSISTS_satisfaction :
 | NEG_sat : (G:form)(P:state)(unsat G P) -> (sat (NEG G) P)
 | OR_sat : (F,G:form)(P:state)(sat F P)/\(sat G P) -> (sat (OR F G) P)
 | ISINPUT_sat : (L:ChanList)(P:proc)(F:form)(A:Set)(b:bool)(c:(chan A b))
- (EXT R:proc | (EXT Q:A->proc | 
+ (EXT R:proc | (EXT Q:A->proc |
   (Cong P (parP (inP c Q) R))/\((v:A)(sat F L#(Q v))))) -> (sat (ISINPUT c F) L#P)
 | ISOUTPUT_sat : (L:ChanList)(P:proc)(F:form)(A:Set)(b:bool)(c:(chan A b))(v:A)
- (EXT R:proc | (EXT Q:proc | 
+ (EXT R:proc | (EXT Q:proc |
   (Cong P (parP (outP c v Q) R))/\(sat F L#Q))) -> (sat (ISOUTPUT c v F) L#P)
 | CONSISTS_sat : (L:ChanList)(R:proc)(F,G:form)
- (EXT P:proc | (EXT Q:proc | (Cong R (parP P Q))/\(sat F L#P)/\(sat G L#Q))) -> 
+ (EXT P:proc | (EXT Q:proc | (Cong R (parP P Q))/\(sat F L#P)/\(sat G L#Q))) ->
 	(sat (CONSISTS F G) L#R)
 with unsat : form -> state -> Prop :=
   NEG_unsat : (G:form)(P:state)(sat G P) -> (unsat (NEG G) P)
 | OR_unsat : (F,G:form)(P:state)(unsat F P)/\(unsat G P) -> (unsat (OR F G) P)
 | ISINPUT_unsat : (L:ChanList)(P:proc)(F:form)(A:Set)(b:bool)(c:(chan A b))
  (R:proc)(Q:A->proc)~(Cong P (parP (inP c Q) R))\/
- (EXT R:proc | (EXT Q:A->proc | 
+ (EXT R:proc | (EXT Q:A->proc |
   (Cong P (parP (inP c Q) R))/\(EX v:A | (unsat F L#(Q v))))) -> (unsat (ISINPUT c F) L#P)
 | ISOUTPUT_unsat : (L:ChanList)(P:proc)(F:form)(A:Set)(b:bool)(c:(chan A b))(v:A)
  (R,Q:proc)~(Cong P (outP c v Q))\/
- (EXT R:proc | (EXT Q:proc | 
+ (EXT R:proc | (EXT Q:proc |
   (Cong P (parP (outP c v Q) R))/\(unsat F L#Q))) -> (unsat (ISOUTPUT c v F) L#P)
 | CONSISTS_unsat : (L:ChanList)(R:proc)(F,G:form)
- (((P:proc)(Q:proc)(Cong R (parP P Q)) -> (unsat F L#P)\/(unsat G L#Q))) -> 
+ (((P:proc)(Q:proc)(Cong R (parP P Q)) -> (unsat F L#P)\/(unsat G L#Q))) ->
 	(unsat (CONSISTS F G) L#R).*)
 
 (*Axiom FORALL_satisfaction : (A:Set)(b:bool)(F:(chan A b) -> form)(P:state)
@@ -133,7 +133,7 @@ Axiom MUSTEV_satisfaction :
     (forall PS,
       PS 0 = SomeT _ P ->
       isMaxRedSeq PS ->
-      exists Q, 
+      exists Q,
 	(exists n, PS n = SomeT _ Q /\ tsat F Q)) <-> tsat (MUSTEV F) P.
 
 Axiom FMUSTEV_satisfaction :
@@ -142,7 +142,7 @@ Axiom FMUSTEV_satisfaction :
       PS 0 = SomeT _ P ->
       isMaxRedSeq PS ->
       isFairRedSeq PS ->
-      exists Q, 
+      exists Q,
 	(exists n, PS n = SomeT _ Q /\ tsat F Q)) <-> tsat (FMUSTEV F) P.
 
 Lemma ISANY_sat : forall P, sat ISANY P.
@@ -363,7 +363,7 @@ Lemma MUSTEV_sat :
    (forall PS,
      PS 0 = SomeT _ P ->
      isMaxRedSeq PS ->
-     exists Q, 
+     exists Q,
        (exists n, PS n = SomeT _ Q /\ tsat F Q)) -> tsat (MUSTEV F) P.
 intros.
 generalize (MUSTEV_satisfaction P F).
@@ -377,7 +377,7 @@ Lemma MUSTEV_sat_inv :
     forall PS,
       PS 0 = SomeT _ P ->
       isMaxRedSeq PS ->
-      exists Q, 
+      exists Q,
 	(exists n, PS n = SomeT _ Q /\ tsat F Q).
 intros.
 generalize (MUSTEV_satisfaction P F).
@@ -394,7 +394,7 @@ Lemma FMUSTEV_sat :
       PS 0 = SomeT _ P ->
       isMaxRedSeq PS ->
       isFairRedSeq PS ->
-      exists Q, 
+      exists Q,
 	(exists n, PS n = SomeT _ Q /\ tsat F Q)) -> tsat (FMUSTEV F) P.
 intros.
 generalize (FMUSTEV_satisfaction P F).
@@ -410,7 +410,7 @@ Lemma FMUSTEV_sat_inv :
       PS 0 = SomeT _ P ->
       isMaxRedSeq PS ->
       isFairRedSeq PS ->
-      exists Q, 
+      exists Q,
 	(exists n, PS n = SomeT _ Q /\ tsat F Q).
 intros.
 generalize (FMUSTEV_satisfaction P F).
@@ -426,12 +426,12 @@ Inductive notin (A : Set) (b : bool) (c : chan A b) : form -> Prop :=
   | OR_notin : forall F G, notin c F -> notin c G -> notin c (OR F G)
       (* | ISZERO_notin : (notin c ISZERO)*)
   | INPUTS_notin : forall B b' (d : chan B b') G,
-      ~ d && c -> notin c G -> notin c (INPUTS d G)
+      ~ d &&& c -> notin c G -> notin c (INPUTS d G)
   | OUTPUTS_notin : forall B b' (d : chan B b') v G,
-      ~ d && c -> ~ (v %% c) -> notin c G -> notin c (OUTPUTS d v G)
+      ~ d &&& c -> ~ (v %% c) -> notin c G -> notin c (OUTPUTS d v G)
   | CONSISTS_notin : forall G H, notin c G -> notin c H -> notin c (CONSISTS G H).
 (* | FORALL_notin : (B:Set)(b':bool)(F:(chan B b')->form)
- ((d:(chan B b')) ~(c && d) -> (notin c (F d))) -> (notin c (FORALL F))*)
+ ((d:(chan B b')) ~(c &&& d) -> (notin c (F d))) -> (notin c (FORALL F))*)
 (* | UNTIL_notin : (G,H:form)(notin c G) -> (notin c H) -> (notin c (UNTIL G H))
  | MAYEV_notin : (G:form)(notin c G) -> (notin c (MAYEV G))*)
 
@@ -499,7 +499,7 @@ Qed.
 Lemma inv_OUTPUTS_notin' : forall A b (c : chan A b) F,
   notin c F ->
   forall B b' (d : chan B b') v G,
-    F = OUTPUTS d v G -> ~ d && c /\ ~ (v %% c) /\ notin c G.
+    F = OUTPUTS d v G -> ~ d &&& c /\ ~ (v %% c) /\ notin c G.
 do 5 intro.
 induction H
  as
@@ -534,7 +534,7 @@ discriminate H0.
 Qed.
 
 Lemma inv_OUTPUTS_notin : forall A b (c : chan A b) B b' (d : chan B b') v G,
- notin c (OUTPUTS d v G) -> ~ d && c /\ ~ (v %% c) /\ notin c G.
+ notin c (OUTPUTS d v G) -> ~ d &&& c /\ ~ (v %% c) /\ notin c G.
 intros.
 eapply inv_OUTPUTS_notin'.
 apply H.
@@ -565,7 +565,7 @@ inversion_clear H0.
 auto.
 Qed.
 
-Lemma free_vars_tfree_vars : forall L f, 
+Lemma free_vars_tfree_vars : forall L f,
   free_vars L f -> tfree_vars L (STAT f).
 intros.
 red in |- *.
@@ -658,7 +658,7 @@ Definition ALWAYS F := NEGT (MAYEV (NEGT F)).
 
 Definition MUSTEV [f:form] : form := (UNTIL ISANY f).*)
 
-Lemma AND_sat : forall F G P, 
+Lemma AND_sat : forall F G P,
   sat F P /\ sat G P -> sat (AND F G) P.
 intros.
 unfold AND in |- *.
@@ -674,7 +674,7 @@ apply H1.
 intuition.
 Qed.
 
-Lemma AND_sat_inv : forall F G P, 
+Lemma AND_sat_inv : forall F G P,
   sat (AND F G) P -> sat F P /\ sat G P.
 intros.
 unfold AND in H.
@@ -693,7 +693,7 @@ apply NEG_sat.
 auto.
 Qed.
 
-Lemma ANDT_sat : forall F G P, 
+Lemma ANDT_sat : forall F G P,
   tsat F P /\ tsat G P -> tsat (ANDT F G) P.
 intros.
 unfold ANDT in |- *.
@@ -709,7 +709,7 @@ apply H1.
 intuition.
 Qed.
 
-Lemma ANDT_sat_inv : forall F G P, 
+Lemma ANDT_sat_inv : forall F G P,
   tsat (ANDT F G) P -> tsat F P /\ tsat G P.
 intros.
 unfold ANDT in H.
@@ -730,7 +730,7 @@ Qed.
 
 (*Lemma ISINPUT_sat_inv : (A:Set;b:bool;c:(chan A b))(L:ChanList)(P:proc)(f:form)
  (sat (ISINPUT c f) L#P) ->
- (EXT C:A->proc | (EXT Q:proc | 
+ (EXT C:A->proc | (EXT Q:proc |
      (Cong P (parP (inP c C) Q)) \/ (Cong P (parP (rinP c C) Q)))).
 Intros.
 Unfold INPUTS in H.
@@ -764,7 +764,7 @@ Qed.
 
 Lemma OUTPUTS_sat_inv : (A:Set;b:bool;c:(chan A b);v:A)(L:ChanList)(P:proc)(f:form)
  (sat (OUTPUTS c v f) L#P) ->
- (EXT C:proc | (EXT Q:proc | 
+ (EXT C:proc | (EXT Q:proc |
      (Cong P (parP (outP c v C) Q)))).
 Intros.
 Unfold OUTPUTS in H.
@@ -784,7 +784,7 @@ Qed.
 
 Lemma MUSTEV_sat : (P:state)(F:form)((PS:stateSeq)(PS O)==(SomeT ? P) ->
  (isMaxRedSeq PS) ->
- (EXT M:ChanList | (EXT Q:proc | (EX n:nat | 
+ (EXT M:ChanList | (EXT Q:proc | (EX n:nat |
        (PS n)==(SomeT ? M#Q) /\ (sat F M#Q))))) -> (sat (MUSTEV F) P).
 Intros.
 Unfold MUSTEV.
@@ -843,8 +843,8 @@ Apply ISANY_sat.
 Qed.*)
 
 (*Lemma test_sat : (A:Set)(b:bool)(e,d:(chan A b))(v,v',w,w':A)~e=d ->
- (sat 
-   (NEG (EXISTS [c:(chan A b)](CONSISTS (ISOUTPUT c v ISANY) (ISOUTPUT c w ISANY)))) 
+ (sat
+   (NEG (EXISTS [c:(chan A b)](CONSISTS (ISOUTPUT c v ISANY) (ISOUTPUT c w ISANY))))
    (e&(d&nilC))#(parP (OutAtom e v') (OutAtom d w'))).
 Intros A b e d v v' w w' diff.
 Apply NEG_sat.
@@ -887,7 +887,7 @@ Generalize (all_trans_out_cong ? ? H0 ? ? ? H7); Intro.
 Assert (Trans (parP (outP e v' zeroP) (outP d w' zeroP)) (OutL e v') (parP zeroP (outP d w' zeroP))).
 Apply tr_parL.
 Apply tr_out.
-Generalize (H9 ? ? H10); Intro. 
+Generalize (H9 ? ? H10); Intro.
 Inversion_clear H11.
 Assert (Trans (parP (outP e v' zeroP) (outP d w' zeroP)) (OutL d w') (parP  (outP e v' zeroP) zeroP)).
 Apply tr_parR.
@@ -902,7 +902,7 @@ Apply diff.
 Rewrite H16; Rewrite H13; Auto.
 Qed.*)
 
-Lemma free_vars_neg : forall L f, 
+Lemma free_vars_neg : forall L f,
   free_vars L (NEG f) <-> free_vars L f.
 intros.
 split.
@@ -1018,4 +1018,3 @@ Unset Implicit Arguments.
 
 
 
- 

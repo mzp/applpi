@@ -1,4 +1,4 @@
-Add LoadPath "/home/affeldt/src/coq/applpi".
+Add LoadPath "/Users/mzp/Downloads/applpi".
 
 Require Import libapplpi.
 Require Import SMTP_applpi_string.

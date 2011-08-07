@@ -1,4 +1,4 @@
-Add LoadPath "/home/affeldt/src/coq/applpi".
+Add LoadPath "/Users/mzp/Downloads/applpi".
 
 Require Import libapplpi.
 Require Import SMTP_applpi_string.
@@ -78,7 +78,7 @@ with speaks_valid_after_rcpt (s : InputStream) : proc -> Prop :=
   | io_error_after_rcpt : forall P, speaks_valid_after_rcpt s P ->
       speaks_valid_after_rcpt s (IOexn_chan << tt >> P).
 
-(* for instance, a mail client that only send abort commands speaks a 
+(* for instance, a mail client that only send abort commands speaks a
 valid protocol; in other words, the goal:
 forall (s:chan SMTP_cmd),
 (speaks_valid_protocol s (s << cmd_abort >> zeroP))

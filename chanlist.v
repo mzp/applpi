@@ -9,11 +9,11 @@ Inductive ChanList : Type :=
   | nilC : ChanList
   | consC : forall (A : Set) (b : bool), chan A b -> ChanList -> ChanList.
 
-Fixpoint in_ChanList (A : Set) (b : bool) (c : chan A b) 
+Fixpoint in_ChanList (A : Set) (b : bool) (c : chan A b)
  (l : ChanList) {struct l} : Prop :=
   match l with
   | nilC => False
-  | consC B b' d tl => c && d \/ in_ChanList c tl
+  | consC B b' d tl => c &&& d \/ in_ChanList c tl
   end.
 
 Fixpoint appC (l m : ChanList) {struct l} : ChanList :=
@@ -61,7 +61,7 @@ Qed.
 
 Lemma eqdep_consC :
  forall (A B : Set) (a' b' : bool) (a : chan A a') (b : chan B b'),
- a && b -> forall L : ChanList, a & L = b & L.
+ a &&& b -> forall L : ChanList, a & L = b & L.
 intros.
 elim H.
 auto.
@@ -224,9 +224,9 @@ auto.
 Qed.
 
 Lemma in_ChanList_eqdep :
- forall (A : Set) (b : bool) (c : chan A b) (A' : Set) 
+ forall (A : Set) (b : bool) (c : chan A b) (A' : Set)
    (b' : bool) (c' : chan A' b'),
- c && c' -> forall l : ChanList, in_ChanList c l -> in_ChanList c' l.
+ c &&& c' -> forall l : ChanList, in_ChanList c l -> in_ChanList c' l.
 intros.
 induction l.
 simpl in H0.
@@ -440,10 +440,10 @@ Ltac CheckInChanList :=
   |  |- (in_ChanList ?X1 ?X2) => simpl in |- *; CheckInChanList
   |  |- (?X1 \/ ?X2) => first
   [ left; CheckInChanList | right; CheckInChanList ]
-  |  |- (?X1 && ?X1) => apply eqdep_intro
-  |  |- (?X1 && ?X2) => fail
+  |  |- (?X1 &&& ?X1) => apply eqdep_intro
+  |  |- (?X1 &&& ?X2) => fail
   | _ => fail
-  end.  
+  end.
 
 Ltac CheckInc :=
   match goal with
@@ -452,7 +452,7 @@ Ltac CheckInc :=
   |  |- (incC (?X1 & ?X2) (?X3 & ?X4)) =>
       apply incC_sublist; [ CheckInc | CheckInChanList ]
   |  |- (incC (?X1 & ?X2) ?X3) => fail
-  end. (* case where the rhs is a variable *) 
+  end. (* case where the rhs is a variable *)
 
 (***
    * permutations
@@ -602,12 +602,12 @@ intros.
 simpl in H3.
 inversion_clear H3.
 generalize
- (in_ChanList_eqdep _ _ _ _ _ _ (eqdep_sym _ _ _ _ _ _ _ _ _ H4) _ H1); 
+ (in_ChanList_eqdep _ _ _ _ _ _ (eqdep_sym _ _ _ _ _ _ _ _ _ H4) _ H1);
  intro.
 apply (in_chanlist_permutC _ _ H0 _ _ _ H3).
 red in H.
 simpl in H.
-assert (c0 && c \/ in_ChanList c0 L).
+assert (c0 &&& c \/ in_ChanList c0 L).
 auto.
 generalize (H _ _ _ H3); intro.
 generalize (in_chanlist_permutC _ _ H0 _ _ _ H5); intro.
@@ -673,13 +673,13 @@ Ltac Permut n :=
       match eval compute in n with
       | 1 => fail
       | _ =>
-          let 
+          let
           (*  | _ -> Let l0'='(?2^^(?1&nilC)) In*)
           l0' := constr:(X2 ^^ X1 & nilC) in
           (apply (permutC_trans (X1 & X2) l0' X3);
             [ apply permutC_append | compute in |- *; Permut (pred n) ])
       end
-  end. 
+  end.
 
 Ltac PermutProve :=
   match goal with
@@ -691,9 +691,9 @@ Ltac PermutProve :=
 
 
 Ltac test_chan2 c d yes_cont no_cont :=
-  match constr:(c && d) with
-  | (?X1 && ?X1) => yes_cont
-  | (?X1 && ?X2) => no_cont
+  match constr:(c &&& d) with
+  | (?X1 &&& ?X1) => yes_cont
+  | (?X1 &&& ?X2) => no_cont
   end.
 
 Ltac del_one_elt lst elt germ :=
@@ -843,10 +843,10 @@ Qed.
 Set Implicit Arguments.
 Unset Strict Implicit.
 
-Definition del (P : ChanList) (A' : Set) (b' : bool) 
+Definition del (P : ChanList) (A' : Set) (b' : bool)
   (c' : chan A' b') (M : ChanList) : Prop :=
   forall (A : Set) (b : bool) (c : chan A b),
-  in_ChanList c P /\ ~ c && c' <-> in_ChanList c M.
+  in_ChanList c P /\ ~ c &&& c' <-> in_ChanList c M.
 
 Set Strict Implicit.
 Unset Implicit Arguments.
@@ -863,7 +863,7 @@ intuition.
 intros.
 generalize (IHL _ _ c0); intro X; inversion_clear X.
 red in H.
-elim (classic (c && c0)); intro.
+elim (classic (c &&& c0)); intro.
 exists x.
 split; intros.
 generalize (H _ _ c1); intro X; inversion_clear X.
@@ -872,7 +872,7 @@ split; auto.
 inversion_clear H1.
 simpl in H4.
 inversion_clear H4.
-assert (c1 && c0).
+assert (c1 &&& c0).
 apply eqdep_trans with (y := c).
 auto.
 auto.
@@ -899,7 +899,7 @@ inversion_clear H1.
 split.
 simpl in |- *; auto.
 intro.
-assert (c && c0).
+assert (c &&& c0).
 apply eqdep_trans with (y := c1).
 auto.
 auto.
@@ -922,7 +922,7 @@ intros.
 inversion_clear H0.
 simpl in H1.
 inversion_clear H1.
-absurd (c0 && c).
+absurd (c0 &&& c).
 auto.
 auto.
 auto.
@@ -1027,7 +1027,7 @@ apply H0.
 split; auto.
 elim (in_chanlist_app_com (a & nilC) l _ _ c0); auto.
 elim (H _ _ c0); intros.
-assert (in_ChanList c0 (a & l) /\ ~ c0 && c).
+assert (in_ChanList c0 (a & l) /\ ~ c0 &&& c).
 auto.
 inversion_clear H3; split; auto.
 elim (in_chanlist_app_com (a & nilC) l _ _ c0); intros.
@@ -1043,7 +1043,7 @@ split; auto.
 elim (in_chanlist_app_com (a & nilC) l _ _ c0); intros.
 auto.
 elim (H _ _ c0); intros.
-assert (in_ChanList c0 (l ^^ a & nilC) /\ ~ c0 && c).
+assert (in_ChanList c0 (l ^^ a & nilC) /\ ~ c0 &&& c).
 auto.
 inversion_clear H3; split; auto.
 elim (in_chanlist_app_com (a & nilC) l _ _ c0); auto.
